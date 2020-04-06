@@ -39,8 +39,13 @@ getValue :: [Int] -> NDArray a -> a
 getValue _       (Value x) = x
 getValue (i:idx) (Array x) = getValue idx (x!!i)
 
--- Zeros :: [Int] ->  NDArray Int
--- Zeros [0,0,0] = []
--- Zeros [0,0,n] = Value x : Zeros [0,0,(-) n 1] xs
--- Zeros [0,n,k] = Array [ Zeros [0,(-) n 1,k] xs ]
--- Zeros [n,j,k] = Array [ Zeros [(-) n 1,j,k] xs ]
+-- This can be reconstructed as a mutually recursive set of functions. 
+fill :: a -> [Int] ->  NDArray a
+fill n [x]    = Array [ Value n   | _ <- [1..x]]
+fill n (x:xs) = Array [ fill n xs | _ <- [1..x] ]
+
+zeros' :: [Int] ->  NDArray Int
+zeros' = fill 0
+
+ones' :: [Int] -> NDArray Int
+ones' = fill 1
