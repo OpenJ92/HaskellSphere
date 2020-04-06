@@ -47,9 +47,11 @@ fill' :: [a] -> [Int] ->  NDArray a
 fill' ns [x]    = Array $ loop' ns ((-) x 1)
 fill' ns (x:xs) = Array $ loop  ns (length ns)  ((-) x 1) x xs
 
+loop' :: [a] -> Int -> [NDArray a]
 loop' []     _  = []
 loop' (n:ns) x' = Value n : loop' ns ((-) x' 1)
 
+loop :: [a] -> Int -> Int -> Int -> [Int] -> [NDArray a]
 loop ns _   0  _ xs = [ fill' ns xs ]
 loop ns lns x' x xs = fill' (take (div lns x) ns) xs : loop (drop (div lns x) ns) lns ((-) x' 1) x xs
 
