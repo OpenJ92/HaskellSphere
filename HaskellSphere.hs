@@ -43,17 +43,19 @@ getValue (i:idx) (Array x) = getValue idx (x!!i)
 -- It might be nessesary to construct a recursive list construction so 
 -- as to partition the input as we traverse the tree.
 
-fill' :: [a] -> [Int] ->  NDArray a
-fill' ns [x]    = Array $ loop' ns ((-) x 1)
-fill' ns (x:xs) = Array $ loop  ns (length ns)  ((-) x 1) x xs
+ndarray :: [a] -> [Int] ->  NDArray a
+ndarray ns [x]    = Array $ ndaValueUtil ns ((-) x 1)
+ndarray ns (x:xs) = Array $ ndaUtil  ns (length ns)  ((-) x 1) x xs
 
-loop' :: [a] -> Int -> [NDArray a]
-loop' []     _  = []
-loop' (n:ns) x' = Value n : loop' ns ((-) x' 1)
+ndaValueUtil :: [a] -> Int -> [NDArray a]
+ndaValueUtil []     _  = []
+ndaValueUtil (n:ns) x' = Value n : ndaValueUtil ns ((-) x' 1)
 
-loop :: [a] -> Int -> Int -> Int -> [Int] -> [NDArray a]
-loop ns _   0  _ xs = [ fill' ns xs ]
-loop ns lns x' x xs = fill' (take (div lns x) ns) xs : loop (drop (div lns x) ns) lns ((-) x' 1) x xs
+ndaUtil :: [a] -> Int -> Int -> Int -> [Int] -> [NDArray a]
+ndaUtil ns _   0  _ xs = [ ndarray ns xs ]
+ndaUtil ns lns x' x xs = ndarray (take (m) ns) xs : ndaUtil (drop (m) ns) lns ((-) x' 1) x xs
+                        where
+                          m = div lns x
 
 fill :: a -> [Int] ->  NDArray a
 fill n [x]    = Array [ Value n   | _ <- [1..x]]
