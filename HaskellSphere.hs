@@ -20,6 +20,9 @@ sizeSphere :: Sphere -> Int
 sizeSphere One               = 1
 sizeSphere (Sphere _ _ _ cs) = 1 + sizeSphere cs
 
+euclidLength :: Sphere -> Float
+euclidLength p = sqrt $ scalarProduct' p p
+
 updateSphere :: Sphere -> Vector -> Sphere
 updateSphere s ts = makeSphere ts $ sizeSphere s
 
