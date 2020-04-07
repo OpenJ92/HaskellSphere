@@ -1,4 +1,4 @@
-import Prelude
+import Data.List
 
 type C = Float
 type S = Float
@@ -13,7 +13,7 @@ flatten' :: [[a]] -> [a]
 flatten' []       = []
 flatten' (xs:xss) = xs ++ flatten' xss
 
--- construct functions
+-- construct Sphere
 makeSphere :: Vector -> Int -> Sphere
 makeSphere _      0 = One
 makeSphere (t:ts) n = Sphere ( cos t ) ( sin t ) t ( makeSphere ts ( (-) n 1 ) )
@@ -61,7 +61,7 @@ tensorProduct' p q = ndarray ns [length p', length q']
                          q' = eval' q
                          ns = flatten' $ tensorProduct p' q'
 
-tensorProduct :: Vector -> Vector -> Matrix
+tensorProduct :: Vector -> Vector -> Matrix -- reform into NDArray
 tensorProduct []     _  = []
 tensorProduct (x:xs) ys = map (*x) ys : tensorProduct xs ys
 
@@ -75,6 +75,9 @@ eval' :: Sphere -> Vector -- reform into ndarray
 eval' One               = [1.0]
 eval' (Sphere c s _ cs) = ( map (*c) ( eval' cs ) ) ++ [ s ] 
 
+eval :: Sphere -> NDArray Float
+eval p = ndarray (eval' p) [sizeSphere p]
+
 
 -- measure NDArray
 shape :: NDArray a -> [Int]
@@ -84,4 +87,5 @@ shape (Array x) = length x : shape (head x)
 getValue :: [Int] -> NDArray a -> a
 getValue _       (Value x) = x
 getValue (i:idx) (Array x) = getValue idx (x!!i)
+
 
