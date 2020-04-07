@@ -31,17 +31,30 @@ tensorProduct :: Vector -> Vector -> Matrix
 tensorProduct []     _  = []
 tensorProduct (x:xs) ys = map (*x) ys : tensorProduct xs ys
 
+flatten' :: [[a]] -> [a]
+flatten' []       = []
+flatten' (xs:xss) = xs ++ flatten' xss
+
+tensorProduct' :: Sphere -> Sphere -> NDArray Float
+tensorProduct' p q = ndarray ns [length p', length q'] 
+                       where
+                         p' = eval' p
+                         q' = eval' q
+                         ns = flatten' $ tensorProduct p' q'
+
+scalarProduct' :: Sphere -> Sphere -> Float
+scalarProduct' p q = sum [p''*q'' | (p'', q'') <- zip p' q']
+                       where
+                         p' = eval' p
+                         q' = eval' q
+
 shape :: NDArray a -> [Int]
-shape (Value x)      = []
+shape (Value x) = []
 shape (Array x) = length x : shape (head x)
 
 getValue :: [Int] -> NDArray a -> a
 getValue _       (Value x) = x
 getValue (i:idx) (Array x) = getValue idx (x!!i)
-
--- This can be reconstructed as a mutually recursive set of functions. 
--- It might be nessesary to construct a recursive list construction so 
--- as to partition the input as we traverse the tree.
 
 ndarray :: [a] -> [Int] ->  NDArray a
 ndarray ns [x]    = Array $ ndaValueUtil ns ((-) x 1)
@@ -59,10 +72,8 @@ ndaUtil ns lns x' x xs = ndarray (take (m) ns) xs : ndaUtil (drop (m) ns) lns ((
 
 fill :: a -> [Int] ->  NDArray a
 fill n [x]    = Array [ Value n   | _ <- [1..x]]
-fill n (x:xs) = Array [ fill n xs | _ <- [1..x] ]
+fill n (x:xs) = Array [ fill n xs | _ <- [1..x]]
 
 zeros' :: [Int] ->  NDArray Int
 zeros' = fill 0
 
-ones' :: [Int] -> NDArray Int
-ones' = fill 1
