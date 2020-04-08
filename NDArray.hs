@@ -34,4 +34,11 @@ getValue :: [Int] -> NDArray a -> a
 getValue _       (Value x) = x
 getValue (i:idx) (Array x) = getValue idx (x!!i)
 
+-- Here we will map all of np.ndarray methods onto our created NDArray
+-- data element from python's numpy package.
+--
+-- https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
 
+apply :: NDArray a -> (a -> b) -> NDArray b
+apply (Value a) p = Value ( p a ) 
+apply (Array a) p = Array ( [ apply i p | i <- a ] )
