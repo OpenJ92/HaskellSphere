@@ -1,5 +1,7 @@
 module NDArray where
 
+import System.Random 
+
 data NDArray a = Array [ NDArray a ] | Value a deriving (Show)
 
 -- construct NDArray

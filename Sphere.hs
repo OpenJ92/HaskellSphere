@@ -57,5 +57,3 @@ eval' (Sphere c s _ cs) = ( map (*c) ( eval' cs ) ) ++ [ s ]
 
 eval :: Sphere -> NDArray Float
 eval p = ndarray (eval' p) [sizeSphere p]
-
-
