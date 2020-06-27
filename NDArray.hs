@@ -1,5 +1,6 @@
 module NDArray where
 
+type Shape = [Int]
 data NDArray a = Array [ NDArray a ] | Value a deriving (Show)
 
 partition' :: Int -> [a] -> [[a]]

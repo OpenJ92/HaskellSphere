@@ -4,7 +4,10 @@ import NDArray
 import Data.List
 
 -- construct Sphere
---
+type T = Float
+type S = Float
+type C = Float
+type Vector = [Float]
 data Sphere = Sphere C S T Sphere | One 
   deriving (Show)
 
