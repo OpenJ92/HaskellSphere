@@ -1,34 +1,32 @@
 module NDArray where
 
-import System.Random 
-
 data NDArray a = Array [ NDArray a ] | Value a deriving (Show)
 
--- construct NDArray
-ndarray :: [a] -> [Int] ->  NDArray a
-ndarray ns [x]    = Array $ ndaValueUtil ns ((-) x 1)
-ndarray ns (x:xs) = Array $ ndaUtil  ns (length ns)  ((-) x 1) x xs
+partition' :: Int -> [a] -> [[a]]
+partition' _ [] = []
+partition' n vs = (take n vs) : partition' n (drop n vs)
 
-ndaValueUtil :: [a] -> Int -> [NDArray a]
-ndaValueUtil []     _  = []
-ndaValueUtil (n:ns) x' = Value n : ndaValueUtil ns ((-) x' 1)
+ndarray :: Shape -> [a] -> NDArray a
+ndarray [_]    vs = Array $ map (Value) vs
+ndarray (n:ns) vs = Array $ map (ndarray ns) $ partition' m vs
+                    where
+                      m = div (length vs) n
 
-ndaUtil :: [a] -> Int -> Int -> Int -> [Int] -> [NDArray a]
-ndaUtil ns _   0  _ xs = [ ndarray ns xs ]
-ndaUtil ns lns x' x xs = ndarray (take (m) ns) xs : ndaUtil (drop (m) ns) lns ((-) x' 1) x xs
-                        where
-                          m = div lns x
-
-fill :: a -> [Int] ->  NDArray a
+fill :: a -> Shape ->  NDArray a
 fill n [x]    = Array [ Value n   | _ <- [1..x]]
 fill n (x:xs) = Array [ fill n xs | _ <- [1..x]]
 
-zeros' :: [Int] ->  NDArray Int
+zeros' :: Shape ->  NDArray Int
 zeros' = fill 0
 
+ones' :: Shape ->  NDArray Int
+ones' = fill 1
 
--- measure NDArray
-shape :: NDArray a -> [Int]
+apply :: NDArray a -> (a -> b) -> NDArray b
+apply (Value a) p = Value ( p a )
+apply (Array a) p = Array ( [ apply i p | i <- a ] )
+
+shape :: NDArray a -> Shape
 shape (Value x) = []
 shape (Array x) = length x : shape (head x)
 
@@ -36,11 +34,4 @@ getValue :: [Int] -> NDArray a -> a
 getValue _       (Value x) = x
 getValue (i:idx) (Array x) = getValue idx (x!!i)
 
--- Here we will map all of np.ndarray methods onto our created NDArray
--- data element from python's numpy package.
---
 -- https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
-
-apply :: NDArray a -> (a -> b) -> NDArray b
-apply (Value a) p = Value ( p a ) 
-apply (Array a) p = Array ( [ apply i p | i <- a ] )
